@@ -18,9 +18,9 @@ my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT
 #st.dataframe(data=my_dataframe, use_container_width=True)
 #st.stop()
 
-pd_df=my_dataframe.to_pandas()
+pd_df = my_dataframe.to_pandas()
 #st.dataframe(pd_df)
-#st.stop
+#st.stop()
 
 ingredient_list = st.multiselect('Choose upto 5 fruits for your smoothie:', my_dataframe, max_selections=5)
 
@@ -31,16 +31,19 @@ if ingredient_list:
         ingredient_string += fruit_chosen + ' '
         #st.subheader(fruit_chosen + ' Nutrition Information')
         
-        search_on=pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0] 
+        search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0] 
         #st.write('The search value for ', fruit_chosen,' is ', search_on, '.') 
 
+        st.subheader(fruit_chosen + ' Nutrition Information')
+        fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + search_on)
+        fv_dv = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
+
     #st.write(ingredient_string)
-
-
     my_insert_stmt = """ insert into smoothies.public.orders(ingredients)
                     values ('""" + ingredient_string + """', '"""+name_on_order+"""')"""
         
     #st.write(my_insert_stmt)
+    #st.stop()
     
     time_to_insert = st.button('Submit Order')
     
